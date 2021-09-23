@@ -1,0 +1,29 @@
+button {
+  padding: 5px 10px;
+  outline: none;
+  margin: 10px;
+  border: none;
+  border-radius: 2px;
+}
+
+button.current {
+  box-shadow: 0 0 0 2px white, 0 0 0 4px black;
+}
+input {
+  padding: 5px;
+  margin-bottom: 10px;
+}
+div > input {
+  margin-left: 15px;
+}
+
+form {
+  padding: 15px;
+}
+
+#message {
+  padding: 5px;
+  margin-bottom: 15px;
+  background-color: rgb(112, 177, 112);
+  color: white;
+}
