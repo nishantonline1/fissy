@@ -8,22 +8,6 @@ var loginMin = getRandomInt(1, 59);
 var logoutMin = getRandomInt(1, 59);
 var currentDate = null;
 
-chrome.storage.sync.get(
-  ["loginMin", "logoutMin", "lastUpdateDate"],
-  function (result) {
-    if (result.loginMin) {
-      loginMin = result.loginMin;
-    }
-    if (result.logoutMin) {
-      logoutMin = result.logoutMin;
-    }
-    if (result.lastUpdateDate) {
-      result.lastUpdateDate = new Date(result.lastUpdateDate);
-      currentDate = result.lastUpdateDate.getDate();
-    }
-  }
-);
-
 function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
@@ -39,48 +23,65 @@ const triggerAction = () => {
   const minute = date_obj.getMinutes();
   const hour = date_obj.getHours();
 
-  if (!currentDate || currentDate != monthDate) {
-    currentDate = monthDate;
-    loginMin = getRandomInt(1, 59);
-    logoutMin = getRandomInt(1, 59);
-    chrome.storage.sync.set({ loginMin: loginMin });
-    chrome.storage.sync.set({ logoutMin: logoutMin });
-  }
+  chrome.storage.sync.get(
+    ["loginMin", "logoutMin", "lastUpdateDate"],
+    function (result) {
+      if (result.loginMin) {
+        loginMin = result.loginMin;
+      }
+      if (result.logoutMin) {
+        logoutMin = result.logoutMin;
+      }
+      if (result.lastUpdateDate) {
+        result.lastUpdateDate = new Date(result.lastUpdateDate);
+        currentDate = result.lastUpdateDate.getDate();
+      }
 
-  const checkBtnExist = document.querySelector(
-    "home-attendance-clockin-widget"
-  );
-  if (
-    checkBtnExist &&
-    day != 0 &&
-    (!holidays[month] || holidays[month].indexOf(monthDate) == -1)
-  ) {
-    const web_clockOutBtn = document.querySelector(
-      "home-attendance-clockin-widget .btn-danger"
-    );
-    const web_clockInBtn = document.querySelector(
-      "home-attendance-clockin-widget .btn-white"
-    );
-    clocked_in = web_clockOutBtn ? true : false;
+      if (!currentDate || currentDate != monthDate) {
+        currentDate = monthDate;
+        loginMin = getRandomInt(1, 59);
+        logoutMin = getRandomInt(1, 59);
+        chrome.storage.sync.set({ loginMin: loginMin });
+        chrome.storage.sync.set({ logoutMin: logoutMin });
+        chrome.storage.sync.set({ lastUpdateDate: new Date().toString() });
+      }
 
-    // exclude sunday & office holidays
-
-    if (hour < 11 && hour >= 10 && !clocked_in && minute == loginMin) {
-      console.log("Clocked In", hour + ":" + minute);
-      web_clockInBtn.click();
-    }
-    if (hour >= 19 && hour < 21 && clocked_in && minute == logoutMin) {
-      console.log("clocked Out", hour + ":" + minute);
-      web_clockOutBtn.click();
-      setTimeout(() => {
-        const second_web_clockOutBtn = document.querySelector(
+      const checkBtnExist = document.querySelector(
+        "home-attendance-clockin-widget"
+      );
+      if (
+        checkBtnExist &&
+        day != 0 &&
+        (!holidays[month] || holidays[month].indexOf(monthDate) == -1)
+      ) {
+        const web_clockOutBtn = document.querySelector(
           "home-attendance-clockin-widget .btn-danger"
         );
-        console.log("second_web_clockOutBtn", second_web_clockOutBtn);
-        second_web_clockOutBtn.click();
-      }, 5000);
+        const web_clockInBtn = document.querySelector(
+          "home-attendance-clockin-widget .btn-white"
+        );
+        clocked_in = web_clockOutBtn ? true : false;
+
+        // exclude sunday & office holidays
+
+        if (hour < 11 && hour >= 10 && !clocked_in && minute == loginMin) {
+          console.log("Clocked In", hour + ":" + minute);
+          web_clockInBtn.click();
+        }
+        if (hour >= 19 && hour < 21 && clocked_in && minute == logoutMin) {
+          console.log("clocked Out", hour + ":" + minute);
+          web_clockOutBtn.click();
+          setTimeout(() => {
+            const second_web_clockOutBtn = document.querySelector(
+              "home-attendance-clockin-widget .btn-danger"
+            );
+            console.log("second_web_clockOutBtn", second_web_clockOutBtn);
+            second_web_clockOutBtn.click();
+          }, 5000);
+        }
+      }
     }
-  }
+  );
 };
 
 const clock_in_action = () =>
