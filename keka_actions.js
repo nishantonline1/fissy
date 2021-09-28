@@ -1,3 +1,5 @@
+console.log("Mounted");
+
 const holidays = {
   10: [2, 12, 13, 14, 15],
   11: [4],
@@ -12,6 +14,46 @@ function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function EwebClockIn(status) {
+  fetch("https://bizhero.keka.com/k/api/mytime/attendance/webclockin", {
+    headers: {
+      accept: "application/json, text/plain, */*",
+      "accept-language": "en-GB,en-US;q=0.9,en;q=0.8,hi;q=0.7",
+      authorization: "Bearer " + localStorage.getItem("access_token"),
+      "content-type": "application/json; charset=UTF-8",
+      "sec-ch-ua":
+        '"Google Chrome";v="93", " Not;A Brand";v="99", "Chromium";v="93"',
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": '"macOS"',
+      "sec-fetch-dest": "empty",
+      "sec-fetch-mode": "cors",
+      "sec-fetch-site": "same-origin",
+      "x-requested-with": "XMLHttpRequest",
+    },
+    body: JSON.stringify({
+      timestamp: new Date().toISOString(),
+      attendanceLogSource: 1,
+      locationAddress: {
+        longitude: 88.3368406,
+        latitude: 22.6019072,
+        zip: "711106",
+        countryCode: "IN",
+        state: "West Bengal",
+        city: "Howrah",
+        addressLine1:
+          "Pilkhana, 58, Sitanath Bose Lane, Pilkhana, Howrah 711106, West Bengal",
+        addressLine2: "Howrah",
+      },
+      manualClockinType: 1,
+      note: "",
+      originalPunchStatus: status,
+    }),
+    method: "POST",
+    mode: "cors",
+    credentials: "include",
+  }).then(() => location.reload());
 }
 
 const triggerAction = () => {
@@ -66,18 +108,20 @@ const triggerAction = () => {
 
         if (hour < 11 && hour >= 10 && !clocked_in && minute == loginMin) {
           console.log("Clocked In", hour + ":" + minute);
-          web_clockInBtn.click();
+          // web_clockInBtn.click();
+          EwebClockIn(0);
         }
-        if (hour >= 19 && hour < 21 && clocked_in && minute == logoutMin) {
+        if (hour >= 19 && hour < 20 && clocked_in && minute == logoutMin) {
           console.log("clocked Out", hour + ":" + minute);
-          web_clockOutBtn.click();
-          setTimeout(() => {
-            const second_web_clockOutBtn = document.querySelector(
-              "home-attendance-clockin-widget .btn-danger"
-            );
-            console.log("second_web_clockOutBtn", second_web_clockOutBtn);
-            second_web_clockOutBtn.click();
-          }, 5000);
+          // web_clockOutBtn.click();
+          // setTimeout(() => {
+          //   const second_web_clockOutBtn = document.querySelector(
+          //     "home-attendance-clockin-widget .btn-danger"
+          //   );
+          //   console.log("second_web_clockOutBtn", second_web_clockOutBtn);
+          //   second_web_clockOutBtn.click();
+          // }, 5000);
+          EwebClockIn(1);
         }
       }
     }
@@ -86,7 +130,11 @@ const triggerAction = () => {
 
 const clock_in_action = () =>
   setInterval(() => {
-    triggerAction();
+    if (location.hash.indexOf("dashboard") != -1) {
+      triggerAction();
+    } else {
+      location.href = "https://bizhero.keka.com/#/home/dashboard";
+    }
   }, 1000 * 60);
 
 window.onload = function (e) {
@@ -104,8 +152,10 @@ window.onload = function (e) {
       }
     }, 5000);
   }
-  setTimeout(() => {
-    triggerAction();
-    clock_in_action();
-  }, 10000);
+  if (location.host == "bizhero.keka.com") {
+    setTimeout(() => {
+      triggerAction();
+      clock_in_action();
+    }, 10000);
+  }
 };
