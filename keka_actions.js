@@ -102,7 +102,7 @@ const triggerAction = () => {
         const web_clockInBtn = document.querySelector(
           "home-attendance-clockin-widget .btn-white"
         );
-        clocked_in = web_clockOutBtn ? true : false;
+        const clocked_in = web_clockOutBtn ? true : false;
 
         // exclude sunday & office holidays
 
