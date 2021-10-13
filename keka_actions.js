@@ -94,7 +94,7 @@ const triggerAction = () => {
       if (
         checkBtnExist &&
         day != 0 &&
-        (!holidays[month] || holidays[month].indexOf(monthDate) == -1)
+        (!holidays[month + 1] || holidays[month + 1].indexOf(monthDate) == -1)
       ) {
         const web_clockOutBtn = document.querySelector(
           "home-attendance-clockin-widget .btn-danger"
@@ -106,21 +106,12 @@ const triggerAction = () => {
 
         // exclude sunday & office holidays
 
-        if (hour < 11 && hour >= 10 && !clocked_in && minute == loginMin) {
+        if (hour < 11 && hour >= 10 && !clocked_in && minute >= loginMin) {
           console.log("Clocked In", hour + ":" + minute);
-          // web_clockInBtn.click();
           EwebClockIn(0);
         }
-        if (hour >= 19 && hour < 20 && clocked_in && minute == logoutMin) {
+        if (hour >= 19 && hour < 20 && clocked_in && minute >= logoutMin) {
           console.log("clocked Out", hour + ":" + minute);
-          // web_clockOutBtn.click();
-          // setTimeout(() => {
-          //   const second_web_clockOutBtn = document.querySelector(
-          //     "home-attendance-clockin-widget .btn-danger"
-          //   );
-          //   console.log("second_web_clockOutBtn", second_web_clockOutBtn);
-          //   second_web_clockOutBtn.click();
-          // }, 5000);
           EwebClockIn(1);
         }
       }
